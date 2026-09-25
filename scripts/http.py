@@ -60,14 +60,29 @@ class ApiClient:
                 continue
 
             if not response.ok:
+                # The body can echo the values sent, such as task titles, so it is
+                # only logged at DEBUG level and kept out of the public error message.
+                log.debug("Response body for %s %s: %s", method, path, response.text[:500])
+                code = self._error_code(response)
+                message = f"{method} {path} → HTTP {response.status_code}"
                 raise requests.HTTPError(
-                    f"{method} {path} → HTTP {response.status_code}: {response.text[:500]}",
-                    response=response,
+                    f"{message} ({code})" if code else message, response=response
                 )
 
             return response.json() if response.content else {}
 
         raise AssertionError("unreachable")
+
+    @staticmethod
+    def _error_code(response: requests.Response) -> str | None:
+        # Notion returns `code` (e.g. "validation_error"); Todoist returns `error_tag`.
+        try:
+            body = response.json()
+        except ValueError:
+            return None
+        if not isinstance(body, dict):
+            return None
+        return body.get("code") or body.get("error_tag")
 
     @staticmethod
     def _retry_after(response: requests.Response) -> float | None:
