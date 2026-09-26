@@ -1,5 +1,7 @@
 # Todoist ↔ Notion sync
 
+![Notion ↔ Todoist](assets/banner.svg)
+
 Keeps your active Todoist tasks in sync with a Notion database, **in both directions**. Edits made in Todoist reach Notion, and edits made in Notion reach Todoist. When the same field is edited on both sides, **Todoist wins**. It runs every 5 minutes on GitHub Actions.
 
 ## What it does
